@@ -4,18 +4,52 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { UploadIcon } from '@radix-ui/react-icons';
+import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 
 export function VideoInputForm() {
+
+    const [videoFile, setVideoFile] = useState<File | null>(null)
+    
+    function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
+        const { files } = event.currentTarget 
+
+        if(!files) {
+            return
+        }
+
+        const selectedFile = files[0]
+
+        setVideoFile(selectedFile)        
+
+    }
+
+    function handleUploadvideo(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        
+    }
+
+    const previewURL = useMemo(() => {
+        if(!videoFile) return
+        return URL.createObjectURL(videoFile)
+    }, [videoFile])
+
     return (
         <form className='space-y-6'>
         <label 
           htmlFor="video"
-          className='border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/5'
+          className='relative border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/5'
         >
-          <FileVideo className='w-4 h-4' />
-          Selecione um vídeo
+        { previewURL ? (
+        <video src={previewURL} controls={false} className='pointer-events-none absolute inset-0' /> 
+        ) : (
+            <>
+                <FileVideo className='w-4 h-4' />
+                Selecione um vídeo
+            </>
+        )}
+          
         </label>
-        <input type="file" id='video' accept='video/mp4' className='sr-only'/>      
+        <input type="file" id='video' accept='video/mp4' className='sr-only' onChange={handleFileSelected}/>      
         <Separator />
         <div className='space-y-2'>
          <Label htmlFor='transcription_prompt'>Prompt de transcrição</Label> 
