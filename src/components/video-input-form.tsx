@@ -57,22 +57,26 @@ export function VideoInputForm() {
 
         const audioFileBlob = new Blob([data], { type: 'audio/mpeg'})
         const audioFile = new File([audioFileBlob], 'audio.mp3', {
-            type: 'audio'
+            type: 'audio/mpeg'
         })
+
+        console.log('convert finish')
+
+        return audioFile
     }
 
-    function handleUploadvideo(event: FormEvent<HTMLFormElement>) {
+    async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
-
+ 
         const prompt = promptInputRef.current?.value
 
         if(!videoFile) {
             return
         }
-
-
-
         
+        const audioFile = await convertVideoToAudio(videoFile)
+
+        console.log(audioFile, prompt) 
     }
 
     const previewURL = useMemo(() => {
@@ -81,7 +85,7 @@ export function VideoInputForm() {
     }, [videoFile])
 
     return (
-        <form className='space-y-6'>
+        <form onSubmit={handleUploadVideo} className='space-y-6'>
         <label 
           htmlFor="video"
           className='relative border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/5'
@@ -100,10 +104,10 @@ export function VideoInputForm() {
         <Separator />
         <div className='space-y-2'>
          <Label htmlFor='transcription_prompt'>Prompt de transcrição</Label> 
-         <Textarea ref={pronptInputRef} id='transcription_prompt' className='h-20 leading-relaxed resize-none'
+         <Textarea ref={promptInputRef} id='transcription_prompt' className='h-20 leading-relaxed resize-none'
             placeholder='Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,)' />
         </div>    
-        <Button type='submit' className='w-full gap-2'>Carregar vídeo <UploadIcon className='w-4 h-4'/></Button>
+        <Button type='submit' className='w-full gap-2' >Carregar vídeo <UploadIcon className='w-4 h-4'/></Button>
         
       </form>
     )
